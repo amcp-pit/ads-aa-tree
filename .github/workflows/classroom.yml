@@ -19,10 +19,12 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Get repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Check
+        run: |
+             !(grep -qwRE --include=*.{cc,cpp,h,hpp} '<vector>|<list>|<string>|<algorithm>|<stack>|<queue>|<deque>|<set>|<map>|<bits' ./* ) &&  (echo \"Check - OK\" )  || ( echo \"Forbiden STL containers\" && exit 9 )
       - name: Build
         run: |
-             !(grep -qwRE --include=*.{cc,cpp,h,hpp} '<vector>|<list>|<string>|<algorithm>|<stack>|<queue>|<deque>|<set>|<map>' ./* ) &&  (echo \"Build - OK\" )  || ( echo \"Forbiden STL containers\" && exit 9 )
              cmake .
              cmake --build .
       - name: Autograding
@@ -33,10 +35,11 @@ jobs:
       - name: Code linting
         uses: amcp-pit/cpp-linter@v1
         with:
-          extra-args-before: '-xc++ --std=c++20'
+          extra-args-before: '-xc++'
+          extra-args: '-std=c++20'
           after-args: '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: CPD
         uses: amcp-pit/cpd-action@v1
         id: cpd
